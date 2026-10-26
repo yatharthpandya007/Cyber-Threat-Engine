@@ -49,10 +49,14 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             return 0;
+        } else if (strcmp(argv[1], "--all") == 0 || strcmp(argv[1], "-a") == 0) {
+            run_all_engine_modules();
+            return 0;
         } else if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
             printf("Usage: %s [OPTION]\n", argv[0]);
             printf("Options:\n");
-            printf("  --all            Run all modules end-to-end (default if no flag given)\n");
+            printf("  (no arguments)   Launch the interactive terminal menu (default)\n");
+            printf("  --all            Run all modules end-to-end in batch mode\n");
             printf("  --interactive    Launch the interactive terminal menu\n");
             printf("  --module <name>  Run a single module (e.g., sorting, dp, flow, etc.)\n");
             printf("  --benchmark      Run empirical benchmark stress tests\n");
@@ -62,7 +66,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Default execution: run all engine modules end-to-end for a complete showcase
-    run_all_engine_modules();
+    // Default execution: launch the interactive CLI directly!
+    run_interactive_cli();
     return 0;
 }

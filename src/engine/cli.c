@@ -65,6 +65,14 @@ void run_all_engine_modules(void) {
     printf("====================================================================================\n\n");
 }
 
+static void waitForUser(void) {
+    printf("\n------------------------------------------------------------------------------------\n");
+    printf(">>> [PRESS ENTER TO RETURN TO MAIN MENU] ");
+    fflush(stdout);
+    char buf[64];
+    if (fgets(buf, sizeof(buf), stdin) == NULL) return;
+}
+
 void run_interactive_cli(void) {
     print_banner();
     char choice[32];
@@ -73,7 +81,7 @@ void run_interactive_cli(void) {
         print_menu();
         if (!fgets(choice, sizeof(choice), stdin)) break;
         
-        // Strip newline
+        // Strip newline and whitespace
         choice[strcspn(choice, "\r\n")] = '\0';
         if (strlen(choice) == 0) continue;
 
@@ -82,34 +90,44 @@ void run_interactive_cli(void) {
         switch (c) {
             case '1':
                 run_constraints_demos();
+                waitForUser();
                 break;
             case '2':
                 run_sorting_demos();
+                waitForUser();
                 break;
             case '3':
                 run_searching_demos();
+                waitForUser();
                 break;
             case '4':
                 run_divide_conquer_demos();
+                waitForUser();
                 break;
             case '5':
                 run_greedy_demos();
+                waitForUser();
                 break;
             case '6':
                 run_dp_demos();
+                waitForUser();
                 break;
             case '7':
                 run_backtracking_demos();
+                waitForUser();
                 break;
             case '8':
                 run_flow_demos();
+                waitForUser();
                 break;
             case '9':
                 run_strings_demos();
+                waitForUser();
                 break;
             case 'a':
             case 'A':
                 run_all_benchmarks();
+                waitForUser();
                 break;
             case 'r':
             case 'R':
@@ -117,10 +135,12 @@ void run_interactive_cli(void) {
                 print_complexity_table();
                 print_reduction_mapping();
                 print_production_strategy();
+                waitForUser();
                 break;
             case 'e':
             case 'E':
                 run_all_engine_modules();
+                waitForUser();
                 break;
             case 'q':
             case 'Q':
