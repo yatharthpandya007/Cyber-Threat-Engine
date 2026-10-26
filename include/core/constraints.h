@@ -2,17 +2,17 @@
 #define CONSTRAINTS_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "core/models.h"
 
 // ============================================================================
 // VALIDATION CONSTRAINTS & SERVICE LEVEL INDICATORS (SLIs)
 // ============================================================================
 
-// Operational constraints
 #define MIN_SEVERITY 1
 #define MAX_SEVERITY 10
 #define MAX_PORT 65535
-#define MAX_ALERT_CONTAINMENT_BUDGET 100 // Resource constraint
+#define MAX_ALERT_CONTAINMENT_BUDGET 100
 
 // Measurable Service Indicators (SLIs)
 typedef struct {
@@ -24,23 +24,27 @@ typedef struct {
     int total_threats_flagged;
     int valid_events;
     int rejected_events;
+    double total_cpu_time_ms;
 } EngineSLIs;
+
+// Global persistent SLI state
+extern EngineSLIs g_engineSLIs;
 
 // Validation rules
 bool validateLogEntry(const LogEntry* log, char* violationReason, int maxLen);
 bool validateHost(const Host* host);
 
-// Correlation & Alert Generation
+// Threat correlation
 int correlateThreats(const LogEntry logs[], int logCount,
                      const Signature signatures[], int sigCount,
                      Alert alerts[], int maxAlerts);
 
 // SLI Reporting
 void initializeSLIs(EngineSLIs* sli);
-void updateSLIs(EngineSLIs* sli, int evaluated, int flagged, double latency_ms);
+void updateSLIsLive(EngineSLIs* sli, int evaluated, int valid, int rejected, int flagged, double cpu_time_ms);
 void printSLIReport(const EngineSLIs* sli);
 
-// Demo function
+// Interactive control center
 void run_constraints_demos(void);
 
 #endif
