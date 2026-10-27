@@ -28,20 +28,6 @@
  * ============================================================================ */
 
 /* --------------------------------------------------------------------------
- * swap_activities
- *
- * Swaps two Activity structs in place. Used by sorting routines.
- *
- * Time Complexity: O(1)
- * -------------------------------------------------------------------------- */
-static void swap_activities(Activity* a, Activity* b)
-{
-    Activity tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-/* --------------------------------------------------------------------------
  * sort_by_finish_time
  *
  * Simple insertion sort of Activity array by ascending finish time.
@@ -55,26 +41,6 @@ static void sort_by_finish_time(Activity activities[], int n)
         Activity key = activities[i];
         int j = i - 1;
         while (j >= 0 && activities[j].finish > key.finish) {
-            activities[j + 1] = activities[j];
-            j--;
-        }
-        activities[j + 1] = key;
-    }
-}
-
-/* --------------------------------------------------------------------------
- * sort_by_start_time
- *
- * Simple insertion sort of Activity array by ascending start time.
- *
- * Time Complexity: O(n^2)
- * -------------------------------------------------------------------------- */
-static void sort_by_start_time(Activity activities[], int n)
-{
-    for (int i = 1; i < n; i++) {
-        Activity key = activities[i];
-        int j = i - 1;
-        while (j >= 0 && activities[j].start > key.start) {
             activities[j + 1] = activities[j];
             j--;
         }
@@ -578,19 +544,6 @@ int kruskalMST(Graph* g, Edge mstEdges[], int* mstSize)
  * Demonstrates all 6 greedy algorithms with cybersecurity-themed test data
  * and clearly labelled terminal output sections.
  * ============================================================================ */
-
-/* --------------------------------------------------------------------------
- * print_path — helper to recursively print Dijkstra shortest path
- * -------------------------------------------------------------------------- */
-static void print_path(int prev[], int v, Graph* g)
-{
-    if (v == -1) return;
-    print_path(prev, prev[v], g);
-    printf("%s", g->node_names[v]);
-    if (prev[v] != -1 || v == prev[v]) {
-        /* nothing — already printed */
-    }
-}
 
 static void print_dijkstra_path(int prev[], int dest, Graph* g)
 {

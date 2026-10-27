@@ -275,8 +275,10 @@ void run_standard_dc_showcase(void) {
     printf("\n");
 
     SubarrayResult attack = maxSubarray(trafficDeltas, 0, numIntervals - 1);
-    printf("   Attack Window: Interval %d to %d (%d min duration)\n",
-           attack.low, attack.high, (attack.high - attack.low + 1) * 5);
+    printf("   Attack Window: Interval %d to %d (%d min duration, T: %llu to %llu)\n",
+           attack.low, attack.high, (attack.high - attack.low + 1) * 5,
+           (unsigned long long)(baseTime + attack.low * intervalSec),
+           (unsigned long long)(baseTime + attack.high * intervalSec));
     printf("   Total Surge:   %+lld packets/sec -> %s\n\n",
            (long long)attack.sum, attack.sum > 50 ? "CRITICAL ALERT" : "WARNING");
 

@@ -118,7 +118,7 @@ static void run_interactive_search(void) {
 
     if (idxIter != -1) {
         printf("\n[SUCCESS: KEY FOUND IN LOG DATABASE]\n");
-        printf("  Array Position:    Index #%d\n", idxIter);
+        printf("  Array Position:    Index #%d (Recursive: #%d)\n", idxIter, idxRec);
         printf("  Threat Payload:    %s\n", g_searchLogs[idxIter].payload);
         printf("  Threat Severity:   %d / 10\n", g_searchLogs[idxIter].severity);
         printf("  Source Host:       %s -> %s\n", g_searchLogs[idxIter].source_ip, g_searchLogs[idxIter].dest_ip);
