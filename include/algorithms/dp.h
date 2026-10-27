@@ -151,5 +151,6 @@ int tspDP(int dist[][MAX_HOSTS], int n, int path[]);
  * run_dp_demos — Demonstrates all 7 DP algorithms with cybersecurity test data
  * --------------------------------------------------------------------------- */
 void run_dp_demos(void);
+void run_standard_dp_showcase(void);
 
 #endif

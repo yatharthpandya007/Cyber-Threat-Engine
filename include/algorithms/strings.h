@@ -149,5 +149,6 @@ int kmpSearch(const char* text, const char* pattern,
  * algorithms with cybersecurity-themed test data and benchmarks.
  */
 void run_strings_demos(void);
+void run_standard_strings_showcase(void);
 
 #endif

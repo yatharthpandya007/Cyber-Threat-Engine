@@ -162,7 +162,7 @@ void printSLIReport(const EngineSLIs* sli) {
     printf("------------------------------------------------------------------------------------\n\n");
 }
 
-static void run_batch_demo(void) {
+void run_standard_constraints_showcase(void) {
     printf("\n>> Executing Standard Ingestion & Schema Filter Batch (with Live Hardware Clock)...\n\n");
 
     LogEntry testLogs[] = {
@@ -375,7 +375,7 @@ void run_constraints_demos(void) {
 
         char c = choice[0];
         if (c == '1') {
-            run_batch_demo();
+            run_standard_constraints_showcase();
         } else if (c == '2') {
             run_interactive_injection();
         } else if (c == '3') {

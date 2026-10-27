@@ -45,15 +45,15 @@ void run_all_engine_modules(void) {
     print_banner();
     printf("\n>> RUNNING ALL THREAT ENGINE MODULES END-TO-END...\n\n");
 
-    run_constraints_demos();
-    run_sorting_demos();
-    run_searching_demos();
-    run_divide_conquer_demos();
-    run_greedy_demos();
-    run_dp_demos();
-    run_backtracking_demos();
-    run_flow_demos();
-    run_strings_demos();
+    run_standard_constraints_showcase();
+    run_standard_sorting_showcase();
+    run_standard_searching_showcase();
+    run_standard_dc_showcase();
+    run_standard_greedy_showcase();
+    run_standard_dp_showcase();
+    run_standard_backtracking_showcase();
+    run_standard_flow_showcase();
+    run_standard_strings_showcase();
     run_all_benchmarks();
     print_recurrence_solutions();
     print_complexity_table();
@@ -90,39 +90,30 @@ void run_interactive_cli(void) {
         switch (c) {
             case '1':
                 run_constraints_demos();
-                waitForUser();
                 break;
             case '2':
                 run_sorting_demos();
-                waitForUser();
                 break;
             case '3':
                 run_searching_demos();
-                waitForUser();
                 break;
             case '4':
                 run_divide_conquer_demos();
-                waitForUser();
                 break;
             case '5':
                 run_greedy_demos();
-                waitForUser();
                 break;
             case '6':
                 run_dp_demos();
-                waitForUser();
                 break;
             case '7':
                 run_backtracking_demos();
-                waitForUser();
                 break;
             case '8':
                 run_flow_demos();
-                waitForUser();
                 break;
             case '9':
                 run_strings_demos();
-                waitForUser();
                 break;
             case 'a':
             case 'A':

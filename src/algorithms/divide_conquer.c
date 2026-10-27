@@ -262,7 +262,7 @@ void strassenMultiply(int n, int A[][MAX_HOSTS], int B[][MAX_HOSTS], int C[][MAX
 // INTERACTIVE DEMO RUNNER
 // ============================================================================
 
-static void run_standard_dc_showcase(void) {
+void run_standard_dc_showcase(void) {
     printf("\n=== STANDARD DIVIDE & CONQUER SHOWCASE =================================\n\n");
 
     int trafficDeltas[] = { -2, 10, -5, 25, 40, -15, 30, -8, -3, -20, 5, -7 };

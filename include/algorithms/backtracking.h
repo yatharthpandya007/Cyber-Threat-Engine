@@ -168,5 +168,6 @@ int bbLeastCost(int costMatrix[][MAX_HOSTS], int n, int assignment[]);
  * Demonstrates all 5 algorithms with cybersecurity-themed test data.
  */
 void run_backtracking_demos(void);
+void run_standard_backtracking_showcase(void);
 
 #endif /* BACKTRACKING_H */

@@ -18,7 +18,8 @@ void quickSortByTimestamp(LogEntry arr[], int low, int high);
 void mergeBySeverity(LogEntry arr[], int left, int mid, int right);
 void mergeSortBySeverity(LogEntry arr[], int left, int right);
 
-// Demo function
+// Demo functions
 void run_sorting_demos(void);
+void run_standard_sorting_showcase(void);
 
 #endif

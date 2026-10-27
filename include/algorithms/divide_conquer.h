@@ -52,5 +52,6 @@ void strassenMultiply(int n, int A[][MAX_HOSTS], int B[][MAX_HOSTS], int C[][MAX
 
 // Demo function
 void run_divide_conquer_demos(void);
+void run_standard_dc_showcase(void);
 
 #endif

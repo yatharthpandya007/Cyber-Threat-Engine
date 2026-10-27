@@ -129,5 +129,6 @@ int kruskalMST(Graph* g, Edge mstEdges[], int* mstSize);
  * and clearly labelled terminal output sections.
  * -------------------------------------------------------------------------- */
 void run_greedy_demos(void);
+void run_standard_greedy_showcase(void);
 
 #endif /* GREEDY_H */

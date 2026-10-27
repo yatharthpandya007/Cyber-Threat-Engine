@@ -156,6 +156,36 @@ static void run_interactive_bst(void) {
     }
 }
 
+void run_standard_searching_showcase(void) {
+    printf("=== PHASE 2.2: SEARCHING & BST INDEXING SHOWCASE =======================\n");
+    show_log_table();
+    uint64_t target = 1728900700ULL;
+    printf(">> Executing Automated Iterative Binary Search [O(log n)] for target %llu...\n", (unsigned long long)target);
+    int idxIter = binarySearchByTimestamp(g_searchLogs, 0, g_numSearchLogs - 1, target);
+    printf(">> Executing Automated Recursive Binary Search [O(log n)] for target %llu...\n", (unsigned long long)target);
+    int idxRec = binarySearchRecursive(g_searchLogs, 0, g_numSearchLogs - 1, target);
+    if (idxIter != -1) {
+        printf("\n[SUCCESS: KEY FOUND IN LOG DATABASE]\n");
+        printf("  Array Position:    Index #%d (Recursive: #%d)\n", idxIter, idxRec);
+        printf("  Threat Payload:    %s\n", g_searchLogs[idxIter].payload);
+        printf("  Threat Severity:   %d / 10\n", g_searchLogs[idxIter].severity);
+        printf("  Source Host:       %s -> %s\n\n", g_searchLogs[idxIter].source_ip, g_searchLogs[idxIter].dest_ip);
+    }
+    printf(">> Demonstrating BST Index In-Order Traversal:\n");
+    if (g_dynamicBST == NULL) {
+        for (int i = 0; i < g_numSearchLogs; i++) {
+            g_dynamicBST = bstInsert(g_dynamicBST, g_searchLogs[i].timestamp, i);
+        }
+    }
+    bstInorder(g_dynamicBST);
+    printf("\n>> BST Search for target timestamp %llu:\n", (unsigned long long)target);
+    BSTNode* res = bstSearch(g_dynamicBST, target);
+    if (res) {
+        printf("  [BST MATCH FOUND] Key: %llu -> Data Index: %d\n", (unsigned long long)res->key, res->data_index);
+    }
+    printf("========================================================================\n\n");
+}
+
 void run_searching_demos(void) {
     char choice[32];
     while (1) {

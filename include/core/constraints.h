@@ -44,7 +44,8 @@ void initializeSLIs(EngineSLIs* sli);
 void updateSLIsLive(EngineSLIs* sli, int evaluated, int valid, int rejected, int flagged, double cpu_time_ms);
 void printSLIReport(const EngineSLIs* sli);
 
-// Interactive control center
+// Interactive control center & showcase
 void run_constraints_demos(void);
+void run_standard_constraints_showcase(void);
 
 #endif

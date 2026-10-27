@@ -26,5 +26,6 @@ void bstFree(BSTNode* root);
 
 // Demo function
 void run_searching_demos(void);
+void run_standard_searching_showcase(void);
 
 #endif

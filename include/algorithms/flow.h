@@ -113,5 +113,6 @@ void printMatching(int matching[], int numAnalysts,
  * Runs all network flow demonstrations with cybersecurity-themed test data.
  */
 void run_flow_demos(void);
+void run_standard_flow_showcase(void);
 
 #endif /* FLOW_H */

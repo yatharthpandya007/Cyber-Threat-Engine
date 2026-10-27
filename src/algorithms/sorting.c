@@ -108,7 +108,7 @@ static LogEntry g_liveLogs[50] = {
 };
 static int g_liveLogCount = 6;
 
-static void run_standard_sorting(void) {
+void run_standard_sorting_showcase(void) {
     displayLogs("Current Event Logs (Unsorted):", g_liveLogs, g_liveLogCount);
 
     LogEntry temp[50];
@@ -169,7 +169,7 @@ static void add_custom_log(void) {
     g_liveLogs[g_liveLogCount++] = newLog;
     printf("\n[ADDED] New log inserted! Total live logs: %d\n\n", g_liveLogCount);
 
-    run_standard_sorting();
+    run_standard_sorting_showcase();
 }
 
 static void run_scale_sorting_benchmark(void) {
@@ -241,7 +241,7 @@ void run_sorting_demos(void) {
 
         char c = choice[0];
         if (c == '1') {
-            run_standard_sorting();
+            run_standard_sorting_showcase();
         } else if (c == '2') {
             add_custom_log();
         } else if (c == '3') {
