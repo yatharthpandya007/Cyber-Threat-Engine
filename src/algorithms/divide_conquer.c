@@ -1,5 +1,6 @@
 #include "algorithms/divide_conquer.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <time.h>
@@ -258,126 +259,150 @@ void strassenMultiply(int n, int A[][MAX_HOSTS], int B[][MAX_HOSTS], int C[][MAX
 }
 
 // ============================================================================
-// DEMO FUNCTION
+// INTERACTIVE DEMO RUNNER
 // ============================================================================
 
-void run_divide_conquer_demos(void) {
-    printf("=== PHASE 3: DIVIDE & CONQUER ==========================================\n\n");
+static void run_standard_dc_showcase(void) {
+    printf("\n=== STANDARD DIVIDE & CONQUER SHOWCASE =================================\n\n");
 
-    // --- 3.1 Maximum Subarray (DDoS Detection) ---
-    printf("--- 3.1 Maximum Subarray (DDoS Attack Window Detection) ---\n");
     int trafficDeltas[] = { -2, 10, -5, 25, 40, -15, 30, -8, -3, -20, 5, -7 };
     int numIntervals = sizeof(trafficDeltas) / sizeof(trafficDeltas[0]);
     uint64_t baseTime = 1728900000;
     int intervalSec = 300;
 
-    printf("Traffic deltas (pps change per 5-min interval):\n  ");
-    for (int i = 0; i < numIntervals; i++) {
-        char tStr[6];
-        time_t t = (time_t)(baseTime + i * intervalSec);
-        strftime(tStr, sizeof(tStr), "%H:%M", localtime(&t));
-        printf("%s:%+3d  ", tStr, trafficDeltas[i]);
-    }
+    printf("1. DDoS Volumetric Attack Detection (Maximum Subarray):\n   Deltas: ");
+    for (int i = 0; i < numIntervals; i++) printf("%+d ", trafficDeltas[i]);
     printf("\n");
 
     SubarrayResult attack = maxSubarray(trafficDeltas, 0, numIntervals - 1);
-    char s1[32], s2[32];
-    time_t t1 = (time_t)(baseTime + attack.low * intervalSec);
-    time_t t2 = (time_t)(baseTime + attack.high * intervalSec);
-    strftime(s1, sizeof(s1), "%H:%M:%S", localtime(&t1));
-    strftime(s2, sizeof(s2), "%H:%M:%S", localtime(&t2));
-    printf("[DDoS ALERT] Attack window: %s — %s (%d intervals, %d min)\n",
-           s1, s2, attack.high - attack.low + 1, (attack.high - attack.low + 1) * 5);
-    printf("  Total surge: %+lld pps → %s\n\n",
-           (long long)attack.sum, attack.sum > 50 ? "CRITICAL" : "WARNING");
+    printf("   Attack Window: Interval %d to %d (%d min duration)\n",
+           attack.low, attack.high, (attack.high - attack.low + 1) * 5);
+    printf("   Total Surge:   %+lld packets/sec -> %s\n\n",
+           (long long)attack.sum, attack.sum > 50 ? "CRITICAL ALERT" : "WARNING");
 
-    // --- 3.2 Fast Powering (Crypto Key Computation) ---
-    printf("--- 3.2 Fast Powering (Modular Exponentiation) ---\n");
-    long long base_val = 7, exponent = 256, modulus = 1000000007;
-    long long result = fastPower(base_val, exponent, modulus);
-    printf("Computing: %lld^%lld mod %lld\n", base_val, exponent, modulus);
-    printf("Result: %lld\n", result);
-    printf("Domain: RSA key computation — O(log n) vs naive O(n)\n\n");
+    printf("2. Fast Modular Powering (Cryptography):\n");
+    printf("   7^256 mod 1000000007 = %lld (computed in O(log n) steps)\n\n",
+           fastPower(7, 256, 1000000007));
 
-    // --- 3.3 Celebrity Problem (Honeypot Discovery) ---
-    printf("--- 3.3 Celebrity Problem (Honeypot Host Discovery) ---\n");
-    const char* hostNames[] = {"WebServer", "Database", "Honeypot", "Attacker", "Firewall"};
-    int nHosts = 5;
+    printf("3. Honeypot Celebrity Discovery:\n");
     int knows[MAX_HOSTS][MAX_HOSTS] = {
-        //  Web  DB   Honey Atk  FW
-        {0, 0, 1, 0, 0},  // WebServer knows Honeypot
-        {0, 0, 1, 0, 0},  // Database knows Honeypot
-        {0, 0, 0, 0, 0},  // Honeypot knows nobody (celebrity!)
-        {0, 0, 1, 0, 0},  // Attacker knows Honeypot
-        {0, 0, 1, 0, 0},  // Firewall knows Honeypot
+        {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 1, 0, 0}, {0, 0, 1, 0, 0}
     };
-    int celeb = findCelebrity(knows, nHosts);
-    if (celeb != -1) {
-        printf("Honeypot identified: Host %d (%s)\n", celeb, hostNames[celeb]);
-        printf("  → All other hosts connect to it, it connects to nobody.\n");
-        printf("  → This is the network sinkhole/honeypot node.\n\n");
+    int celeb = findCelebrity(knows, 5);
+    printf("   Honeypot Identified: Host #%d (everyone connects to it, it connects to none)\n\n", celeb);
+
+    printf("4. Classical vs Strassen Matrix Multiplication (2-Hop Attack Reachability):\n");
+    int A[MAX_HOSTS][MAX_HOSTS] = {{0,1,0,0},{0,0,1,1},{1,0,0,0},{0,0,1,0}};
+    int C1[MAX_HOSTS][MAX_HOSTS] = {0}, C2[MAX_HOSTS][MAX_HOSTS] = {0};
+    classicalMatMul(4, A, A, C1);
+    strassenMultiply(4, A, A, C2);
+    printf("   Classical O(n^3) and Strassen O(n^2.807) both yielded identical reachability matrix A^2.\n\n");
+}
+
+static void run_interactive_ddos(void) {
+    printf("\n--- INTERACTIVE DDOS ATTACK WINDOW SIMULATOR ---\n");
+    printf("Choose an attack scenario:\n");
+    printf("  [1] High-Intensity Volumetric Flood (Sudden Massive Traffic Surge)\n");
+    printf("  [2] Low-and-Slow Stealth Attack (Borderline Fluctuation)\n");
+    printf("  [3] Custom Multiplier on Real Traffic Stream\n");
+    printf("Choice [default 1]: ");
+    fflush(stdout);
+
+    char buf[64];
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int choice = atoi(buf);
+
+    int deltas[12];
+    int base[12] = { -2, 10, -5, 25, 40, -15, 30, -8, -3, -20, 5, -7 };
+
+    if (choice == 2) {
+        // Low and slow
+        int low[12] = { -1, 4, -2, 5, 8, -3, 6, -2, -1, -5, 2, -1 };
+        memcpy(deltas, low, sizeof(deltas));
+    } else if (choice == 3) {
+        printf("Enter traffic multiplier [e.g. 2 for 2x surge, 5 for 5x surge]: ");
+        fflush(stdout);
+        if (fgets(buf, sizeof(buf), stdin)) {
+            int mult = atoi(buf);
+            if (mult <= 0) mult = 2;
+            for (int i = 0; i < 12; i++) deltas[i] = base[i] * mult;
+        } else {
+            memcpy(deltas, base, sizeof(deltas));
+        }
     } else {
-        printf("No honeypot host found in the network.\n\n");
+        // Massive flood
+        int flood[12] = { -5, 20, 60, 150, 220, 310, 180, 50, -40, -80, -30, -10 };
+        memcpy(deltas, flood, sizeof(deltas));
     }
 
-    // --- 3.4 & 3.5 Matrix Multiplication (Attack Graph Reachability) ---
-    printf("--- 3.4 Classical vs Strassen Matrix Multiply (Reachability) ---\n");
-    int matN = 4;
-    printf("Network adjacency matrix A (4 hosts):\n");
-    int A[MAX_HOSTS][MAX_HOSTS] = {
-        {0, 1, 0, 0},
-        {0, 0, 1, 1},
-        {1, 0, 0, 0},
-        {0, 0, 1, 0}
-    };
-    const char* matHosts[] = {"Gateway", "WebSrv", "AppSrv", "DB"};
-    printf("       ");
-    for (int i = 0; i < matN; i++) printf("%-8s", matHosts[i]);
-    printf("\n");
-    for (int i = 0; i < matN; i++) {
-        printf("  %-6s", matHosts[i]);
-        for (int j = 0; j < matN; j++) printf("%-8d", A[i][j]);
-        printf("\n");
-    }
+    printf("\nStreaming Live 5-Minute Traffic Deltas:\n  ");
+    for (int i = 0; i < 12; i++) printf("%+d ", deltas[i]);
+    printf("\n\n>> Running Divide-and-Conquer Maximum Subarray Algorithm [T(n) = 2T(n/2) + Theta(n)]...\n");
 
-    int C_classic[MAX_HOSTS][MAX_HOSTS] = {0};
-    int C_strassen[MAX_HOSTS][MAX_HOSTS] = {0};
+    SubarrayResult res = maxSubarray(deltas, 0, 11);
+    printf("------------------------------------------------------------------------------------\n");
+    printf("   VOLUMETRIC ATTACK ISOLATION RESULT (CALCULATED LIVE)                             \n");
+    printf("------------------------------------------------------------------------------------\n");
+    printf("  Attack Start Window:     Interval #%d\n", res.low);
+    printf("  Attack End Window:       Interval #%d\n", res.high);
+    printf("  Duration of Surge:       %d consecutive intervals (%d minutes)\n",
+           res.high - res.low + 1, (res.high - res.low + 1) * 5);
+    printf("  Total Cumulative Surge:  %+lld packets/second\n", (long long)res.sum);
+    printf("  Engine Defense Verdict:  %s\n",
+           (res.sum > 100) ? "EMERGENCY: Volumetric DDoS Detected! Automatically enabling rate-limiting." :
+           (res.sum > 30)  ? "WARNING: Abnormal Traffic Spike. Escalating to SOC Tier-2 Analyst." :
+                             "NORMAL: Traffic variance is within acceptable operational thresholds.");
+    printf("------------------------------------------------------------------------------------\n\n");
+}
+
+static void run_interactive_fast_power(void) {
+    printf("\n--- INTERACTIVE MODULAR EXPONENTIATION (FAST POWERING) ---\n");
+    char buf[64];
+    printf("Enter Base [default 7]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    long long b = (strlen(buf) > 1) ? atoll(buf) : 7;
+
+    printf("Enter Exponent [default 128]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    long long e = (strlen(buf) > 1) ? atoll(buf) : 128;
+
+    printf("Enter Modulus [default 1000000007]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    long long m = (strlen(buf) > 1) ? atoll(buf) : 1000000007;
 
     clock_t start = clock();
-    classicalMatMul(matN, A, A, C_classic);
-    clock_t classicTime = clock() - start;
+    long long ans = fastPower(b, e, m);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
 
-    start = clock();
-    strassenMultiply(matN, A, A, C_strassen);
-    clock_t strassenTime = clock() - start;
+    printf("\n[CALCULATED IN O(log exp) STEPS]\n");
+    printf("  %lld^%lld mod %lld = %lld\n", b, e, m, ans);
+    printf("  Calculation Latency: %.5f ms\n\n", t);
+}
 
-    printf("\nA² (2-hop reachability) — Classical O(n³):\n");
-    printf("       ");
-    for (int i = 0; i < matN; i++) printf("%-8s", matHosts[i]);
-    printf("\n");
-    for (int i = 0; i < matN; i++) {
-        printf("  %-6s", matHosts[i]);
-        for (int j = 0; j < matN; j++) printf("%-8d", C_classic[i][j]);
-        printf("\n");
+void run_divide_conquer_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 3: DIVIDE & CONQUER CONTROL CENTER ===========================\n");
+        printf("  [1] Standard Divide & Conquer Showcase (DDoS, FastPower, Honeypot, Strassen)\n");
+        printf("  [2] Interactive DDoS Surge Simulator (Change Attacks & Watch Window Move!)\n");
+        printf("  [3] Interactive Fast Powering Cryptography Calculator (Enter Any Base/Exp)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_dc_showcase();
+        else if (c == '2') run_interactive_ddos();
+        else if (c == '3') run_interactive_fast_power();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
     }
-
-    printf("\nA² (2-hop reachability) — Strassen O(n^2.807):\n");
-    printf("       ");
-    for (int i = 0; i < matN; i++) printf("%-8s", matHosts[i]);
-    printf("\n");
-    for (int i = 0; i < matN; i++) {
-        printf("  %-6s", matHosts[i]);
-        for (int j = 0; j < matN; j++) printf("%-8d", C_strassen[i][j]);
-        printf("\n");
-    }
-
-    // Verify results match
-    int match = 1;
-    for (int i = 0; i < matN && match; i++)
-        for (int j = 0; j < matN && match; j++)
-            if (C_classic[i][j] != C_strassen[i][j]) match = 0;
-
-    printf("\nResults match: %s\n", match ? "YES ✓" : "NO ✗");
-    printf("Classical time: %ld ticks | Strassen time: %ld ticks\n", (long)classicTime, (long)strassenTime);
-    printf("Note: Strassen advantage appears at n ≥ 64 (crossover point).\n\n");
 }

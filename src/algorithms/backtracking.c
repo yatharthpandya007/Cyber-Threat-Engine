@@ -16,6 +16,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "algorithms/backtracking.h"
 
@@ -562,7 +563,7 @@ int bbLeastCost(int costMatrix[][MAX_HOSTS], int n, int assignment[])
  * Demonstrates all five algorithms in this module with cybersecurity-themed
  * test data and clearly labeled terminal output.
  */
-void run_backtracking_demos(void)
+void run_standard_backtracking_showcase(void)
 {
     printf("╔══════════════════════════════════════════════════════════════════╗\n");
     printf("║   BACKTRACKING & BRANCH-AND-BOUND MODULE — DEMONSTRATIONS     ║\n");
@@ -758,4 +759,94 @@ void run_backtracking_demos(void)
     printf("═══════════════════════════════════════════════════════════════════\n");
     printf("  All Backtracking & Branch-and-Bound demos complete.\n");
     printf("═══════════════════════════════════════════════════════════════════\n\n");
+}
+
+static void run_interactive_nqueens(void) {
+    printf("\n--- INTERACTIVE N-QUEENS FIREWALL RULE PLACEMENT ---\n");
+    char buf[64];
+    printf("Enter number of network zones / inspection rules N (4 to 8) [default: 5]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int n = atoi(buf);
+    if (n < 4) n = 4;
+    if (n > 8) n = 8;
+
+    int solutions[50][20];
+    clock_t start = clock();
+    int total = solveNQueens(n, solutions, 50);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf("\n>> Backtracking Exploration Complete in %.4f ms!\n", t);
+    printf("  Found %d non-conflicting firewall configurations for %d zones.\n\n", total, n);
+
+    if (total > 0) {
+        printf("Displaying Optimal Valid Configuration #1:\n");
+        printBoard(solutions[0], n);
+        printf("Explanation: Each 'Q' represents an active firewall policy assigned to that port slot.\n");
+        printf("Zero row, column, or diagonal conflicts exist.\n\n");
+    }
+}
+
+static void run_interactive_subset_sum(void) {
+    printf("\n--- INTERACTIVE DATA EXFILTRATION RECONSTRUCTION (SUBSET SUM) ---\n");
+    int transfers[] = {32, 48, 64, 96, 128, 160, 200, 256, 300};
+    int numTransfers = 9;
+
+    printf("Observed Suspicious Outbound File Transfers in Network Log:\n  ");
+    for (int i = 0; i < numTransfers; i++) printf("[%d MB] ", transfers[i]);
+    printf("\n\n");
+
+    char buf[64];
+    printf("Enter the suspected exfiltration volume to match in MB [e.g. 160, 320, 448, 512]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int target = atoi(buf);
+    if (target <= 0) target = 320;
+
+    int subsets[20][MAX_ITEMS];
+    int subsetSizes[20];
+    clock_t start = clock();
+    int found = subsetSum(transfers, numTransfers, target, subsets, subsetSizes, 20);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf("\n>> Backtracking Match Results for Target %d MB (Latency: %.4f ms):\n", target, t);
+    if (found > 0) {
+        printf("  Found %d exact forensic combination(s) summing to %d MB:\n", found, target);
+        for (int i = 0; i < found; i++) {
+            printf("    Combination #%d: ", i + 1);
+            for (int j = 0; j < subsetSizes[i]; j++) {
+                if (j > 0) printf(" + ");
+                printf("%d MB", subsets[i][j]);
+            }
+            printf(" = %d MB [MATCH]\n", target);
+        }
+        printf("\n  Forensic Conclusion: Stolen data matches these exact file uploads.\n\n");
+    } else {
+        printf("  [NO MATCH] No combination of outbound transfers sums exactly to %d MB.\n\n", target);
+    }
+}
+
+void run_backtracking_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 6: BACKTRACKING & BRANCH-AND-BOUND CONTROL CENTER ============\n");
+        printf("  [1] Run All Standard Backtracking & B&B Demos (N-Queens, SubsetSum, FIFO/LIFO/LC)\n");
+        printf("  [2] Interactive N-Queens Firewall Placement (Enter Any N = 4 to 8)\n");
+        printf("  [3] Interactive Data Exfiltration Search (Enter Any Volume in MB)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_backtracking_showcase();
+        else if (c == '2') run_interactive_nqueens();
+        else if (c == '3') run_interactive_subset_sum();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
+    }
 }

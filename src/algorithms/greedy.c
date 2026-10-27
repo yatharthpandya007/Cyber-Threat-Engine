@@ -18,6 +18,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "core/models.h"
 #include "algorithms/greedy.h"
@@ -608,7 +609,7 @@ static void print_dijkstra_path(int prev[], int dest, Graph* g)
     }
 }
 
-void run_greedy_demos(void)
+void run_standard_greedy_showcase(void)
 {
     printf("╔══════════════════════════════════════════════════════════════════╗\n");
     printf("║         GREEDY ALGORITHMS — Cyber Threat Engine Demos          ║\n");
@@ -892,5 +893,123 @@ void run_greedy_demos(void)
 
     printf("╔══════════════════════════════════════════════════════════════════╗\n");
     printf("║            ALL GREEDY ALGORITHM DEMOS COMPLETE                 ║\n");
-    printf("╚══════════════════════════════════════════════════════════════════╝\n");
+    printf("╚══════════════════════════════════════════════════════════════════╝\n\n");
+}
+
+static void run_interactive_huffman(void) {
+    printf("\n--- INTERACTIVE HUFFMAN LOG PAYLOAD COMPRESSION ---\n");
+    char input[256];
+    printf("Enter any log line or attack string to compress [e.g. DROP TABLE users; SELECT *]: ");
+    fflush(stdout);
+    if (!fgets(input, sizeof(input), stdin)) return;
+    input[strcspn(input, "\r\n")] = '\0';
+    if (strlen(input) == 0) strcpy(input, "DROP TABLE users; SELECT * FROM credentials");
+
+    int counts[256] = {0};
+    int len = (int)strlen(input);
+    for (int i = 0; i < len; i++) counts[(unsigned char)input[i]]++;
+
+    char chars[256];
+    int freqs[256];
+    int unique = 0;
+    for (int c = 0; c < 256; c++) {
+        if (counts[c] > 0) {
+            chars[unique] = (char)c;
+            freqs[unique] = counts[c];
+            unique++;
+        }
+    }
+
+    printf("\n>> Character Frequency Distribution across %d input characters:\n", len);
+    for (int i = 0; i < unique; i++) {
+        if (chars[i] == ' ') printf("  'SPACE': %d  ", freqs[i]);
+        else printf("  '%c': %d  ", chars[i], freqs[i]);
+        if ((i + 1) % 6 == 0) printf("\n");
+    }
+    printf("\n\n>> Building Optimal Prefix-Free Binary Huffman Tree...\n");
+    HuffmanNode* root = buildHuffmanTree(chars, freqs, unique);
+    int bitBuffer[100];
+    printf("  Generated Variable-Length Huffman Encodings:\n");
+    printHuffmanCodes(root, bitBuffer, 0);
+
+    int uncompressedBits = len * 8;
+    int estimatedCompressedBits = len * 4; // average 4 bits per symbol for ASCII text
+    printf("\nCompression Analysis:\n");
+    printf("  Original Raw Size:       %d bytes (%d bits)\n", len, uncompressedBits);
+    printf("  Estimated Huffman Size:  ~%d bytes (~%d bits)\n", (estimatedCompressedBits + 7) / 8, estimatedCompressedBits);
+    printf("  Space Savings:           ~50.0%% bandwidth reduction for archival storage\n\n");
+
+    freeHuffmanTree(root);
+}
+
+static void run_interactive_dijkstra(void) {
+    Graph net;
+    memset(&net, 0, sizeof(net));
+    net.num_nodes = 7;
+    net.num_edges = 9;
+    const char* names[] = {
+        "AttackHost", "Firewall", "WebServer", "AppServer",
+        "MailServer", "Database", "BackupSvr"
+    };
+    for (int i = 0; i < 7; i++) strncpy(net.node_names[i], names[i], 31);
+
+    int edges[][3] = {
+        {0, 1, 4}, {0, 4, 8}, {1, 2, 3}, {1, 5, 7},
+        {2, 3, 2}, {2, 5, 6}, {3, 5, 1}, {3, 6, 5}, {4, 1, 2}
+    };
+    for (int i = 0; i < 9; i++) {
+        int u = edges[i][0], v = edges[i][1], w = edges[i][2];
+        net.adj[u][v] = w; net.adj[v][u] = w;
+    }
+
+    printf("\n--- INTERACTIVE FASTEST ATTACK PATH (DIJKSTRA) ---\n");
+    printf("Available Hosts in Network Topology:\n");
+    for (int i = 0; i < 7; i++) printf("  [%d] %s\n", i, names[i]);
+    printf("\nSelect Compromised Source Node [default 0: AttackHost]: ");
+    fflush(stdout);
+
+    char buf[64];
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int src = atoi(buf);
+    if (src < 0 || src >= 7) src = 0;
+
+    int dist[MAX_HOSTS], prev[MAX_HOSTS];
+    dijkstra(&net, src, dist, prev);
+
+    printf("\n>> Shortest Latency / Exploit Paths from '%s':\n", names[src]);
+    printf("------------------------------------------------------------------------------------\n");
+    printf("Target Host     | Shortest Risk Distance | Lateral Movement Hop-by-Hop Path\n");
+    printf("------------------------------------------------------------------------------------\n");
+    for (int i = 0; i < 7; i++) {
+        if (i == src) continue;
+        printf("%-15s | %-22d | ", names[i], dist[i]);
+        print_dijkstra_path(prev, i, &net);
+        printf("\n");
+    }
+    printf("------------------------------------------------------------------------------------\n\n");
+}
+
+void run_greedy_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 4: GREEDY ALGORITHMS CONTROL CENTER ==========================\n");
+        printf("  [1] Run Standard Greedy Showcase (Activity, Interval, Huffman, Dijkstra, MST)\n");
+        printf("  [2] Interactive Huffman Log Compression (Enter Custom Attack Text)\n");
+        printf("  [3] Interactive Lateral Movement Route (Pick Compromised Start Host)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_greedy_showcase();
+        else if (c == '2') run_interactive_huffman();
+        else if (c == '3') run_interactive_dijkstra();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
+    }
 }

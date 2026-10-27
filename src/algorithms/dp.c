@@ -10,6 +10,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "algorithms/dp.h"
 
@@ -502,7 +503,7 @@ int tspDP(int dist[][MAX_HOSTS], int n, int path[])
  * Creates cybersecurity-themed test data and runs each algorithm with
  * clearly labeled output sections.
  * ============================================================================ */
-void run_dp_demos(void)
+void run_standard_dp_showcase(void)
 {
     printf("╔══════════════════════════════════════════════════════════════════╗\n");
     printf("║         DYNAMIC PROGRAMMING MODULE — DEMONSTRATIONS            ║\n");
@@ -849,5 +850,115 @@ void run_dp_demos(void)
 
     printf("╔══════════════════════════════════════════════════════════════════╗\n");
     printf("║         ALL 7 DP DEMOS COMPLETED SUCCESSFULLY                  ║\n");
-    printf("╚══════════════════════════════════════════════════════════════════╝\n");
+    printf("╚══════════════════════════════════════════════════════════════════╝\n\n");
+}
+
+static void run_interactive_knapsack(void) {
+    KnapsackItem tools[] = {
+        {"NextGen Firewall (NGFW)",      3, 6},
+        {"CrowdStrike EDR Agent",        2, 5},
+        {"Splunk SIEM Correlation",      4, 8},
+        {"Honeypot Deception Host",      1, 2},
+        {"Hardware Security Module",     5, 9},
+        {"DDoS Mitigation Scrubber",     3, 7},
+        {"WAF (Web Application Wall)",   2, 4}
+    };
+    int n = 7;
+
+    printf("\n--- INTERACTIVE CYBER DEFENSE TOOL KNAPSACK (0/1 DP) ---\n");
+    printf("Available Security Tools in Catalog:\n");
+    printf("  Tool Name                       | Cost ($k) | Protection Value (1-10)\n");
+    printf("  --------------------------------------------------------------------\n");
+    for (int i = 0; i < n; i++) {
+        printf("  %-31s | $%d,000    | %d / 10\n", tools[i].name, tools[i].cost, tools[i].value);
+    }
+    printf("  --------------------------------------------------------------------\n\n");
+
+    char buf[64];
+    printf("Enter your company's Total Defense Budget in $k [e.g. 5, 8, 12, 16]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int budget = atoi(buf);
+    if (budget <= 0) budget = 8;
+    if (budget > 30) budget = 30;
+
+    int selected[20] = {0};
+    clock_t start = clock();
+    int maxVal = knapsack01(tools, n, budget, selected);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf("\n>> Optimal Defense Portfolio Selected by 0/1 Dynamic Programming (Budget: $%d,000):\n", budget);
+    int totalCost = 0;
+    for (int i = 0; i < n; i++) {
+        if (selected[i]) {
+            printf("  [APPROVED] %-30s | Cost: $%d,000 | Score: +%d\n", tools[i].name, tools[i].cost, tools[i].value);
+            totalCost += tools[i].cost;
+        }
+    }
+    printf("--------------------------------------------------------------------\n");
+    printf("  Total Budget Spent:     $%d,000 / $%d,000\n", totalCost, budget);
+    printf("  Max Protection Score:   %d points\n", maxVal);
+    printf("  DP Table Solve Time:    %.5f ms\n\n", t);
+}
+
+static void run_interactive_lcs(void) {
+    printf("\n--- INTERACTIVE MALWARE VARIANT SIMILARITY (LCS DP) ---\n");
+    char s1[256], s2[256];
+
+    printf("Enter Attack Payload 1 [e.g. 'DROP_TABLE_USERS_WHERE_1=1']: ");
+    fflush(stdout);
+    if (!fgets(s1, sizeof(s1), stdin)) return;
+    s1[strcspn(s1, "\r\n")] = '\0';
+    if (strlen(s1) == 0) strcpy(s1, "DROP_TABLE_USERS_WHERE_1=1");
+
+    printf("Enter Attack Payload 2 [e.g. 'SELECT_AND_DROP_TABLE_USERS']: ");
+    fflush(stdout);
+    if (!fgets(s2, sizeof(s2), stdin)) return;
+    s2[strcspn(s2, "\r\n")] = '\0';
+    if (strlen(s2) == 0) strcpy(s2, "SELECT_AND_DROP_TABLE_USERS");
+
+    char lcsStr[256] = {0};
+    clock_t start = clock();
+    int lcsLen = lcs(s1, s2, lcsStr);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    int minLen = (strlen(s1) < strlen(s2)) ? (int)strlen(s1) : (int)strlen(s2);
+    double similarity = (minLen > 0) ? ((double)lcsLen / minLen) * 100.0 : 0.0;
+
+    printf("\n>> Longest Common Subsequence Analysis:\n");
+    printf("  Payload 1:               \"%s\" (len=%zu)\n", s1, strlen(s1));
+    printf("  Payload 2:               \"%s\" (len=%zu)\n", s2, strlen(s2));
+    printf("  Shared LCS Pattern:      \"%s\"\n", lcsStr);
+    printf("  LCS Length:              %d characters\n", lcsLen);
+    printf("  Signature Similarity:    %.1f %%\n", similarity);
+    printf("  Verdict:                 %s\n",
+           (similarity >= 70.0) ? "CONFIRMED POLYMORPHIC VARIANT: Same malware exploit family!" :
+           (similarity >= 40.0) ? "PARTIAL MATCH: Shared library or shellcode fragments." :
+                                  "UNRELATED: Signatures belong to distinct attack families.");
+    printf("  DP Table Latency:        %.5f ms\n\n", t);
+}
+
+void run_dp_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 5: DYNAMIC PROGRAMMING CONTROL CENTER ========================\n");
+        printf("  [1] Run All Standard DP Demos (Knapsack, MatrixChain, LCS, OptBST, BF, FW, TSP)\n");
+        printf("  [2] Interactive Security Budget Optimization (Enter Any Budget $k)\n");
+        printf("  [3] Interactive Malware Variant Similarity (Compare Any 2 Payloads)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_dp_showcase();
+        else if (c == '2') run_interactive_knapsack();
+        else if (c == '3') run_interactive_lcs();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
+    }
 }

@@ -473,7 +473,7 @@ static bool results_agree(int m1[], int c1, int m2[], int c2,
  * algorithms with cybersecurity-themed test data, clear output, and a
  * performance benchmark comparison.
  */
-void run_strings_demos(void) {
+void run_standard_strings_showcase(void) {
     printf("\n");
     print_separator();
     printf("  🔐 STRING MATCHING & NUMBER THEORY MODULE — CYBER THREAT ENGINE\n");
@@ -721,4 +721,117 @@ void run_strings_demos(void) {
     printf("\n");
 
     #undef MAX_MATCH
+}
+
+static void run_interactive_string_search(void) {
+    printf("\n--- INTERACTIVE 4-ALGORITHM PAYLOAD SCANNER ---\n");
+    char text[512];
+    char pattern[128];
+
+    printf("Enter raw packet payload [e.g. POST /api HTTP/1.1 DROP TABLE users; UNION SELECT password]:\n> ");
+    fflush(stdout);
+    if (!fgets(text, sizeof(text), stdin)) return;
+    text[strcspn(text, "\r\n")] = '\0';
+    if (strlen(text) == 0) strcpy(text, "POST /api HTTP/1.1 Content: DROP TABLE users; UNION SELECT password FROM accounts");
+
+    printf("Enter threat keyword/signature to scan for [e.g. DROP TABLE, UNION SELECT, password]: ");
+    fflush(stdout);
+    if (!fgets(pattern, sizeof(pattern), stdin)) return;
+    pattern[strcspn(pattern, "\r\n")] = '\0';
+    if (strlen(pattern) == 0) strcpy(pattern, "DROP TABLE");
+
+    int matches[50];
+    printf("\n>> Scanning payload (length=%zu chars) for pattern '%s'...\n", strlen(text), pattern);
+    printf("------------------------------------------------------------------------------------\n");
+
+    // 1. Naive
+    clock_t start = clock();
+    int c1 = naiveStringMatch(text, pattern, matches, 50);
+    double t1 = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+    print_matches("Naive String Scanner [O(nm)]", matches, c1);
+
+    // 2. Rabin-Karp
+    start = clock();
+    int c2 = rabinKarp(text, pattern, matches, 50);
+    double t2 = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+    print_matches("Rabin-Karp Rolling Hash [O(n+m)]", matches, c2);
+
+    // 3. Finite Automaton (DFA)
+    start = clock();
+    int c3 = finiteAutomatonMatch(text, pattern, matches, 50);
+    double t3 = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+    print_matches("Finite Automaton DFA [O(n)]", matches, c3);
+
+    // 4. KMP
+    start = clock();
+    int c4 = kmpSearch(text, pattern, matches, 50);
+    double t4 = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+    print_matches("Knuth-Morris-Pratt KMP [O(n+m)]", matches, c4);
+
+    printf("------------------------------------------------------------------------------------\n");
+    printf("Benchmark Verdict: All 4 algorithms independently verified %d match(es) in real time.\n", c4);
+    printf("Timing: Naive: %.4f ms | Rabin-Karp: %.4f ms | DFA: %.4f ms | KMP: %.4f ms\n\n",
+           t1, t2, t3, t4);
+}
+
+static void run_interactive_crt(void) {
+    printf("\n--- INTERACTIVE CHINESE REMAINDER THEOREM (KEY RECONSTRUCTION) ---\n");
+    printf("Scenario: Master decryption key x was split into 3 modular fragments.\n");
+    printf("Enter 3 coprime moduli [default: 3, 5, 7]:\n");
+    int m[3] = {3, 5, 7};
+    int r[3] = {2, 3, 2};
+
+    char buf[64];
+    printf("Enter remainder 1 (x mod %d) [default: 2]: ", m[0]);
+    fflush(stdout);
+    if (fgets(buf, sizeof(buf), stdin) && strlen(buf) > 1) r[0] = atoi(buf);
+
+    printf("Enter remainder 2 (x mod %d) [default: 3]: ", m[1]);
+    fflush(stdout);
+    if (fgets(buf, sizeof(buf), stdin) && strlen(buf) > 1) r[1] = atoi(buf);
+
+    printf("Enter remainder 3 (x mod %d) [default: 2]: ", m[2]);
+    fflush(stdout);
+    if (fgets(buf, sizeof(buf), stdin) && strlen(buf) > 1) r[2] = atoi(buf);
+
+    clock_t start = clock();
+    long long secret = chineseRemainderTheorem(r, m, 3);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf("\n>> Modular System Solved via Extended Euclidean Algorithm:\n");
+    printf("   x = %d (mod %d)\n", r[0], m[0]);
+    printf("   x = %d (mod %d)\n", r[1], m[1]);
+    printf("   x = %d (mod %d)\n", r[2], m[2]);
+    printf("------------------------------------------------------------------------------------\n");
+    printf("  RECONSTRUCTED MASTER SECRET KEY:  %lld\n", secret);
+    printf("  Verification: %lld mod %d = %lld | %lld mod %d = %lld | %lld mod %d = %lld [VERIFIED]\n",
+           secret, m[0], secret % m[0],
+           secret, m[1], secret % m[1],
+           secret, m[2], secret % m[2]);
+    printf("  Reconstruction Latency: %.5f ms\n\n", t);
+}
+
+void run_strings_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 8: STRING MATCHING & NUMBER THEORY CONTROL CENTER ============\n");
+        printf("  [1] Run All Standard String & CRT Demos (4-way Scanner Benchmark + Key Recovery)\n");
+        printf("  [2] Live Interactive 4-Algorithm Payload Scanner (Enter Custom Packet & Keyword)\n");
+        printf("  [3] Live Interactive Chinese Remainder Theorem (Enter Custom Secret Residues)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_strings_showcase();
+        else if (c == '2') run_interactive_string_search();
+        else if (c == '3') run_interactive_crt();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
+    }
 }

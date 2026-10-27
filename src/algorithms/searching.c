@@ -1,68 +1,36 @@
 #include "algorithms/searching.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 // ============================================================================
 // ITERATIVE BINARY SEARCH BY TIMESTAMP
 // ============================================================================
-// Domain: Fast lookup of a specific event by its Unix Epoch timestamp in a
-//         pre-sorted log array.
-// Complexity: O(log n)
-// ============================================================================
-
 int binarySearchByTimestamp(LogEntry arr[], int low, int high, uint64_t target) {
     while (low <= high) {
         int mid = low + (high - low) / 2;
-
-        // Check if target is present at mid
-        if (arr[mid].timestamp == target) {
-            return mid;
-        }
-
-        // If target is greater, ignore left half
-        if (arr[mid].timestamp < target) {
-            low = mid + 1;
-        }
-        // If target is smaller, ignore right half
-        else {
-            high = mid - 1;
-        }
+        if (arr[mid].timestamp == target) return mid;
+        if (arr[mid].timestamp < target) low = mid + 1;
+        else high = mid - 1;
     }
-    // Target was not found
     return -1;
 }
 
 // ============================================================================
 // RECURSIVE BINARY SEARCH BY TIMESTAMP
 // ============================================================================
-// Domain: Same purpose as iterative variant; provided for algorithmic comparison.
-// Recurrence: T(n) = T(n/2) + O(1) → O(log n) by Master Theorem (Case 2)
-// ============================================================================
-
 int binarySearchRecursive(LogEntry arr[], int low, int high, uint64_t target) {
-    if (low > high) {
-        return -1;  // Base case: not found
-    }
-
+    if (low > high) return -1;
     int mid = low + (high - low) / 2;
-
-    if (arr[mid].timestamp == target) {
-        return mid;
-    } else if (arr[mid].timestamp < target) {
-        return binarySearchRecursive(arr, mid + 1, high, target);
-    } else {
-        return binarySearchRecursive(arr, low, mid - 1, target);
-    }
+    if (arr[mid].timestamp == target) return mid;
+    else if (arr[mid].timestamp < target) return binarySearchRecursive(arr, mid + 1, high, target);
+    else return binarySearchRecursive(arr, low, mid - 1, target);
 }
 
 // ============================================================================
 // BINARY SEARCH TREE — Timestamp/IP Index
 // ============================================================================
-// Domain: Dynamic index structure for O(log n) average-case insertion and
-//         lookup of logs by timestamp or hashed IP address.
-// Complexity: O(log n) average for balanced trees, O(n) worst case
-// ============================================================================
-
 BSTNode* bstInsert(BSTNode* root, uint64_t key, int data_index) {
     if (root == NULL) {
         BSTNode* node = (BSTNode*)malloc(sizeof(BSTNode));
@@ -72,32 +40,21 @@ BSTNode* bstInsert(BSTNode* root, uint64_t key, int data_index) {
         node->right = NULL;
         return node;
     }
-
-    if (key < root->key) {
-        root->left = bstInsert(root->left, key, data_index);
-    } else if (key > root->key) {
-        root->right = bstInsert(root->right, key, data_index);
-    }
-    // Duplicate keys are ignored (first-come indexing)
-
+    if (key < root->key) root->left = bstInsert(root->left, key, data_index);
+    else if (key > root->key) root->right = bstInsert(root->right, key, data_index);
     return root;
 }
 
 BSTNode* bstSearch(BSTNode* root, uint64_t key) {
-    if (root == NULL || root->key == key) {
-        return root;
-    }
-
-    if (key < root->key) {
-        return bstSearch(root->left, key);
-    }
+    if (root == NULL || root->key == key) return root;
+    if (key < root->key) return bstSearch(root->left, key);
     return bstSearch(root->right, key);
 }
 
 void bstInorder(BSTNode* root) {
     if (root != NULL) {
         bstInorder(root->left);
-        printf("  Key: %llu → Log Index: %d\n", (unsigned long long)root->key, root->data_index);
+        printf("  [BST Node] Timestamp Key: %llu -> Log Index: %d\n", (unsigned long long)root->key, root->data_index);
         bstInorder(root->right);
     }
 }
@@ -111,71 +68,118 @@ void bstFree(BSTNode* root) {
 }
 
 // ============================================================================
-// DEMO RUNNER: SEARCHING MODULE
+// INTERACTIVE DEMO RUNNER
 // ============================================================================
-#include <time.h>
+static LogEntry g_searchLogs[] = {
+    {1728900100, "192.168.1.50", "10.0.0.8", 443,  "TCP", 9,  "SQL Injection Attempt"},
+    {1728900200, "192.168.1.44", "10.0.0.8", 8080, "TCP", 5,  "Directory Traversal Probe"},
+    {1728900300, "192.168.1.22", "10.0.0.8", 53,   "UDP", 2,  "Standard DNS Query"},
+    {1728900500, "192.168.1.15", "10.0.0.8", 80,   "TCP", 3,  "Normal HTTP Traffic"},
+    {1728900700, "192.168.1.99", "10.0.0.2", 445,  "TCP", 10, "EternalBlue SMB Exploit"},
+    {1728900900, "10.0.0.5",     "192.168.1.100", 22, "TCP", 7,  "Failed SSH Brute Force"}
+};
+static int g_numSearchLogs = sizeof(g_searchLogs) / sizeof(g_searchLogs[0]);
 
-void run_searching_demos(void) {
-    printf("=== PHASE 2.2: SEARCHING & INDEXING MODULE =============================\n\n");
+static BSTNode* g_dynamicBST = NULL;
 
-    LogEntry sortedLogs[] = {
-        {1728900100, "192.168.1.50", "10.0.0.8", 443, "TCP", 9, "SQL Injection Attempt"},
-        {1728900200, "192.168.1.44", "10.0.0.8", 8080, "TCP", 5, "Directory Traversal Probe"},
-        {1728900300, "192.168.1.22", "10.0.0.8", 53, "UDP", 2, "Standard DNS Query"},
-        {1728900500, "192.168.1.15", "10.0.0.8", 80, "TCP", 3, "Normal HTTP Traffic"},
-        {1728900700, "192.168.1.99", "10.0.0.2", 445, "TCP", 10, "EternalBlue SMB Exploit"},
-        {1728900900, "10.0.0.5", "192.168.1.100", 22, "TCP", 7, "Failed SSH Brute Force"}
-    };
-    int n = sizeof(sortedLogs) / sizeof(sortedLogs[0]);
-
-    uint64_t target = 1728900700;
-    char timeStr[32];
-    time_t rawTarget = (time_t)target;
-    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", localtime(&rawTarget));
-
-    printf("Querying chronologically sorted log database for incident timestamp:\n  Target: %llu (%s)\n\n",
-           (unsigned long long)target, timeStr);
-
-    // 1. Iterative Binary Search
-    printf("1. Iterative Binary Search [O(log n)]:\n");
-    int idxIter = binarySearchByTimestamp(sortedLogs, 0, n - 1, target);
-    if (idxIter != -1) {
-        printf("   [FOUND at index %d] Threat: %s | Severity: %d | Source: %s\n\n",
-               idxIter, sortedLogs[idxIter].payload, sortedLogs[idxIter].severity, sortedLogs[idxIter].source_ip);
-    } else {
-        printf("   [NOT FOUND]\n\n");
+static void show_log_table(void) {
+    printf("\nCurrently Indexed Sorted Event Logs in Memory:\n");
+    printf("------------------------------------------------------------------------------------\n");
+    printf("Index | Timestamp    | Source IP       | Sev | Payload\n");
+    printf("------------------------------------------------------------------------------------\n");
+    for (int i = 0; i < g_numSearchLogs; i++) {
+        printf("  [%d] | %llu | %-15s | %-3d | %s\n",
+               i, (unsigned long long)g_searchLogs[i].timestamp,
+               g_searchLogs[i].source_ip, g_searchLogs[i].severity, g_searchLogs[i].payload);
     }
-
-    // 2. Recursive Binary Search
-    printf("2. Recursive Binary Search [T(n) = T(n/2) + O(1) -> O(log n)]:\n");
-    int idxRec = binarySearchRecursive(sortedLogs, 0, n - 1, target);
-    if (idxRec != -1) {
-        printf("   [FOUND at index %d] Threat: %s | Severity: %d | Dest: %s\n\n",
-               idxRec, sortedLogs[idxRec].payload, sortedLogs[idxRec].severity, sortedLogs[idxRec].dest_ip);
-    } else {
-        printf("   [NOT FOUND]\n\n");
-    }
-
-    // 3. Binary Search Tree (BST) Index
-    printf("3. Domain-Specific Index: Binary Search Tree (BST) Indexing [O(log n) avg]:\n");
-    printf("   Building dynamic BST index on event timestamps...\n");
-    BSTNode* root = NULL;
-    for (int i = 0; i < n; i++) {
-        root = bstInsert(root, sortedLogs[i].timestamp, i);
-    }
-
-    printf("   In-order traversal of indexed logs:\n");
-    bstInorder(root);
-
-    printf("   Querying BST for key %llu...\n", (unsigned long long)target);
-    BSTNode* match = bstSearch(root, target);
-    if (match) {
-        printf("   [BST MATCH CONFIRMED] Key %llu maps to LogEntry #%d: '%s'\n",
-               (unsigned long long)match->key, match->data_index, sortedLogs[match->data_index].payload);
-    } else {
-        printf("   [BST MISS]\n");
-    }
-    bstFree(root);
-    printf("\n");
+    printf("------------------------------------------------------------------------------------\n\n");
 }
 
+static void run_interactive_search(void) {
+    show_log_table();
+
+    char buf[64];
+    printf("Enter target Unix Timestamp to search [e.g. 1728900700, or pick any key above]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    buf[strcspn(buf, "\r\n")] = '\0';
+    if (strlen(buf) == 0) strcpy(buf, "1728900700");
+    uint64_t target = (uint64_t)strtoull(buf, NULL, 10);
+
+    printf("\n>> Executing Iterative Binary Search [O(log n)] for target %llu...\n", (unsigned long long)target);
+    clock_t start = clock();
+    int idxIter = binarySearchByTimestamp(g_searchLogs, 0, g_numSearchLogs - 1, target);
+    double tIter = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf(">> Executing Recursive Binary Search [O(log n)] for target %llu...\n", (unsigned long long)target);
+    start = clock();
+    int idxRec = binarySearchRecursive(g_searchLogs, 0, g_numSearchLogs - 1, target);
+    double tRec = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    if (idxIter != -1) {
+        printf("\n[SUCCESS: KEY FOUND IN LOG DATABASE]\n");
+        printf("  Array Position:    Index #%d\n", idxIter);
+        printf("  Threat Payload:    %s\n", g_searchLogs[idxIter].payload);
+        printf("  Threat Severity:   %d / 10\n", g_searchLogs[idxIter].severity);
+        printf("  Source Host:       %s -> %s\n", g_searchLogs[idxIter].source_ip, g_searchLogs[idxIter].dest_ip);
+        printf("  Search Latency:    Iterative: %.4f ms | Recursive: %.4f ms\n\n", tIter, tRec);
+    } else {
+        printf("\n[NOT FOUND] Target timestamp %llu does not exist in the active index.\n", (unsigned long long)target);
+        printf("Binary search verified absence in O(log n) comparisons.\n\n");
+    }
+}
+
+static void run_interactive_bst(void) {
+    if (g_dynamicBST == NULL) {
+        for (int i = 0; i < g_numSearchLogs; i++) {
+            g_dynamicBST = bstInsert(g_dynamicBST, g_searchLogs[i].timestamp, i);
+        }
+    }
+
+    printf("\n=== LIVE DYNAMIC BINARY SEARCH TREE (BST) INDEX ===\n");
+    printf("1. Current BST In-Order Traversal (sorted by key):\n");
+    bstInorder(g_dynamicBST);
+    printf("\n");
+
+    char buf[64];
+    printf("Enter a NEW custom timestamp key to insert into the BST [e.g. 1728900400]: ");
+    fflush(stdout);
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    buf[strcspn(buf, "\r\n")] = '\0';
+    if (strlen(buf) > 0) {
+        uint64_t newKey = (uint64_t)strtoull(buf, NULL, 10);
+        g_dynamicBST = bstInsert(g_dynamicBST, newKey, 99);
+        printf("[INSERTED] Key %llu added to BST index!\n\n", (unsigned long long)newKey);
+        printf("Updated In-Order Traversal:\n");
+        bstInorder(g_dynamicBST);
+        printf("\n");
+    }
+}
+
+void run_searching_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 2.2: SEARCHING & INDEXING CONTROL CENTER =====================\n");
+        printf("  [1] Live Interactive Timestamp Search (Iterative & Recursive)\n");
+        printf("  [2] Live Dynamic Binary Search Tree (BST) Index (Insert & Traverse)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') {
+            run_interactive_search();
+        } else if (c == '2') {
+            run_interactive_bst();
+        } else if (c == 'b' || c == 'B') {
+            break;
+        } else {
+            printf("Invalid selection '%s'.\n\n", choice);
+        }
+    }
+}

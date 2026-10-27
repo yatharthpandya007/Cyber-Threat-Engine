@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <time.h>
 
 #include "algorithms/flow.h"
 
@@ -376,7 +377,7 @@ void printMatching(int matching[], int numAnalysts,
  * Demo 1: Ford-Fulkerson — 6-node network topology bandwidth analysis
  * Demo 2: Bipartite Matching — SOC analyst-to-incident assignment
  */
-void run_flow_demos(void)
+void run_standard_flow_showcase(void)
 {
     printf("\n");
     printf("============================================================"
@@ -592,4 +593,78 @@ void run_flow_demos(void)
     printf("   END OF NETWORK FLOW DEMOS\n");
     printf("============================================================"
            "====================\n\n");
+}
+
+static void run_interactive_bottleneck(void) {
+    int capacity[MAX_HOSTS][MAX_HOSTS];
+    memset(capacity, 0, sizeof(capacity));
+    char names[MAX_HOSTS][32];
+    strcpy(names[0], "Internet_Gateway");
+    strcpy(names[1], "Firewall");
+    strcpy(names[2], "DMZ_Server");
+    strcpy(names[3], "App_Server");
+    strcpy(names[4], "Load_Balancer");
+    strcpy(names[5], "Database");
+    int n = 6;
+
+    capacity[0][1] = 16;
+    capacity[0][2] = 13;
+    capacity[1][2] = 10;
+    capacity[1][3] = 12; // Baseline bottleneck link
+    capacity[1][4] =  4;
+    capacity[2][4] = 14;
+    capacity[2][1] =  9;
+    capacity[3][2] =  7;
+    capacity[3][5] = 20;
+    capacity[4][3] =  4;
+    capacity[4][5] =  4;
+
+    printf("\n--- INTERACTIVE BOTTLENECK BANDWIDTH ALLOCATION ---\n");
+    printf("Current Network Bottleneck: Link [Firewall -> App_Server] has default capacity: %d Mbps\n", capacity[1][3]);
+    printf("Enter new bandwidth capacity for [Firewall -> App_Server] in Mbps [e.g. 5, 25, 50]: ");
+    fflush(stdout);
+
+    char buf[64];
+    if (!fgets(buf, sizeof(buf), stdin)) return;
+    int newCap = atoi(buf);
+    if (newCap <= 0) newCap = 25;
+    capacity[1][3] = newCap;
+
+    int flow[MAX_HOSTS][MAX_HOSTS];
+    memset(flow, 0, sizeof(flow));
+    clock_t start = clock();
+    int maxFlow = fordFulkerson(capacity, n, 0, 5, flow);
+    double t = ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    printf("\n>> Recomputed Network Flow with [Firewall -> App_Server] = %d Mbps:\n", newCap);
+    printf("------------------------------------------------------------------------------------\n");
+    printf("  New Maximum Database Throughput:  %d Mbps\n", maxFlow);
+    printf("  Edmonds-Karp Recompute Latency:   %.5f ms\n", t);
+    printf("------------------------------------------------------------------------------------\n");
+    printf("Edge Utilization:\n");
+    printFlowNetwork(capacity, flow, n, names);
+    printf("\n");
+}
+
+void run_flow_demos(void) {
+    char choice[32];
+    while (1) {
+        printf("=== PHASE 7: NETWORK FLOW & MATCHING CONTROL CENTER ====================\n");
+        printf("  [1] Run Standard Flow Demos (Ford-Fulkerson MaxFlow & Bipartite Matching)\n");
+        printf("  [2] Interactive Bottleneck Capacity Tuning (Modify Link Bandwidth Live!)\n");
+        printf("  [B] Return to Main Engine Menu\n");
+        printf("------------------------------------------------------------------------\n");
+        printf("Select an action: ");
+        fflush(stdout);
+
+        if (!fgets(choice, sizeof(choice), stdin)) break;
+        choice[strcspn(choice, "\r\n")] = '\0';
+        if (strlen(choice) == 0) continue;
+
+        char c = choice[0];
+        if (c == '1') run_standard_flow_showcase();
+        else if (c == '2') run_interactive_bottleneck();
+        else if (c == 'b' || c == 'B') break;
+        else printf("Invalid selection '%s'.\n\n", choice);
+    }
 }
